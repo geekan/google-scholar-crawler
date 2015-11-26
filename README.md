@@ -1,5 +1,5 @@
 
-## Crawl google scholar is super easy here.
+## google-scholar-crawler
 
 #### You can start the crawler with a start_url:
 
