@@ -7,6 +7,30 @@
 scrapy crawl googlescholar -a start_url="https://scholar.google.com/scholar?hl=en&q=estimate+ctr&btnG=&as_sdt=1%2C5&as_sdtp="
 ```
 
+#### Core code, super easy, isn't it?
+
+```
+    list_css_rules = {
+        '.gs_r': {
+            'title': '.gs_rt a *::text',
+            'url': '.gs_rt a::attr(href)',
+            'related-text': '.gs_ggsS::text',
+            'related-type': '.gs_ggsS .gs_ctg2::text',
+            'related-url': '.gs_ggs a::attr(href)',
+            'citation-text': '.gs_fl > a:nth-child(1)::text',
+            'citation-url': '.gs_fl > a:nth-child(1)::attr(href)',
+            'authors': '.gs_a a::text',
+            'description': '.gs_rs *::text',
+            'journal-year-src': '.gs_a::text',
+        }
+    }
+
+    def parse_1(self, response):
+        info('Parse '+response.url)
+        x = self.parse_with_rules(response, self.list_css_rules, dict)
+        pp.pprint(x[0]['.gs_r'])
+```
+
 #### Example results
 
 ```
