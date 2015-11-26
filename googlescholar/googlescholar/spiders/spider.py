@@ -13,6 +13,7 @@ except:
 from scrapy.utils.response import get_base_url
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor as sle
+from scrapy.http import Request
 
 
 from googlescholar.items import *
@@ -30,6 +31,7 @@ class googlescholarSpider(CommonSpider):
     ]
     rules = [
         Rule(sle(allow=("scholar\?.*")), callback='parse_1', follow=False),
+        Rule(sle(allow=(".*\.pdf"))),
     ]
 
     def __init__(self, start_url, *args, **kwargs):
@@ -53,11 +55,29 @@ class googlescholarSpider(CommonSpider):
         }
     }
 
+    def save_pdf(self, response):
+        path = self.get_path(response.url)
+        info(path)
+        with open(path, "wb") as f:
+            f.write(response.body)
+
     def parse_1(self, response):
         info('Parse '+response.url)
         #sel = Selector(response)
         #v = sel.css('.gs_ggs a::attr(href)').extract()
         #import pdb; pdb.set_trace()
         x = self.parse_with_rules(response, self.list_css_rules, dict)
-        pp.pprint(x[0]['.gs_r'])
+        items = []
+        if len(x) > 0:
+            items = x[0]['.gs_r']
+            pp.pprint(items)
+        import pdb; pdb.set_trace()
         # return self.parse_with_rules(response, self.css_rules, googlescholarItem)
+
+        for item in items:
+            if item['related-url'] == '' or item['related-type'] != '[PDF]':
+                continue
+            url = item['related-url']
+            info('pdf-url: ' + url)
+            yield Request(url, callback=self.save_pdf)
+
