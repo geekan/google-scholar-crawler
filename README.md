@@ -1,9 +1,10 @@
 
 ## Crawl google scholar is super easy here.
 
-#### You can start crawl like it:
+#### You can start the crawler with a start_url:
 
 ```
+cd googlescholar
 scrapy crawl googlescholar -a start_url="https://scholar.google.com/scholar?hl=en&q=estimate+ctr&btnG=&as_sdt=1%2C5&as_sdtp="
 ```
 
