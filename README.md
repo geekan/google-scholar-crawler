@@ -1,13 +1,13 @@
 
-# Crawl google scholar is super easy here.
+## Crawl google scholar is super easy here.
 
-## You can define your start_url as below:
+#### You can start crawl like it:
 
 ```
 scrapy crawl googlescholar -a start_url="https://scholar.google.com/scholar?hl=en&q=estimate+ctr&btnG=&as_sdt=1%2C5&as_sdtp="
 ```
 
-## Example results
+#### Example results
 
 ```
 [{'authors': u'M Richardson',
