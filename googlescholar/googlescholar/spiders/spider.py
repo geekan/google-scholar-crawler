@@ -21,6 +21,24 @@ from misc.log import *
 from misc.spider import CommonSpider
 
 
+def _monkey_patching_HTTPClientParser_statusReceived():
+    """
+    monkey patching for scrapy.xlib.tx._newclient.HTTPClientParser.statusReceived
+    """
+    from twisted.web._newclient import HTTPClientParser, ParseError
+    old_sr = HTTPClientParser.statusReceived
+
+    def statusReceived(self, status):
+        try:
+            return old_sr(self, status)
+        except ParseError, e:
+            if e.args[0] == 'wrong number of parts':
+                return old_sr(self, status + ' OK')
+            raise
+    statusReceived.__doc__ == old_sr.__doc__
+    HTTPClientParser.statusReceived = statusReceived
+
+
 class googlescholarSpider(CommonSpider):
     name = "googlescholar"
     allowed_domains = ["google.com"]
@@ -35,6 +53,7 @@ class googlescholarSpider(CommonSpider):
     ]
 
     def __init__(self, start_url='', *args, **kwargs):
+        _monkey_patching_HTTPClientParser_statusReceived()
         if start_url:
             self.start_urls = [start_url]
         super(googlescholarSpider, self).__init__(*args, **kwargs)
@@ -54,6 +73,11 @@ class googlescholarSpider(CommonSpider):
             'journal-year-src': '.gs_a::text',
         }
     }
+
+    def start_requests(self):
+        for url in self.start_urls:
+            _monkey_patching_HTTPClientParser_statusReceived()
+            yield Request(url, dont_filter=True)
 
     def save_pdf(self, response):
         path = self.get_path(response.url)
